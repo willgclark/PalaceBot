@@ -19,12 +19,12 @@ class supreme_bot:
     
     def __init__(self):
         self.option = webdriver.ChromeOptions()
-        self.option.add_argument('--disable-blink-features=AutomationControlled')
-        self.option.add_argument('start-maximized')
-        self.option.add_experimental_option("excludeSwitches", ["enable-automation"])
-        self.option.add_experimental_option('useAutomationExtension', False)
-        agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x32) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36"
-        self.option.add_argument(f"user-agent={agent}")
+        # self.option.add_argument('--disable-blink-features=AutomationControlled')
+        # self.option.add_argument('start-maximized')
+        # self.option.add_experimental_option("excludeSwitches", ["enable-automation"])
+        # self.option.add_experimental_option('useAutomationExtension', False)
+        # agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x32) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36"
+        # self.option.add_argument(f"user-agent={agent}")
         ###
         self.base_url = 'https://www.supremenewyork.com/'
         self.new_items_url = f'{self.base_url}/shop/new'
@@ -33,6 +33,7 @@ class supreme_bot:
         self.desired_item_size = None
         self.basket = []
         self.item_urls = []
+        self.size_list = ['Small', 'Medium', 'Large', 'XLarge']
         self.product_found = False
         self.session = HTMLSession()
         self.timeout = time.time() + (60 * 5) #5 = 5 minute timeout
@@ -52,12 +53,14 @@ class supreme_bot:
             if self.desired_item.lower() in product_name.lower() and self.desired_item_colour.lower() in colour.lower():
                 self.basket.append(f"{self.base_url}{product_url}")
                 self.product_found = True
+                break
                 
     def execute_bot_buffer(self):
-        if len(self.desired_item_colour.get('1.0', END)) == 1 or self.desired_item_size.get() == "":
-            mb.showwarning('Error', "Please enter values for size and colour.")
+        if len(self.desired_item_colour.get('1.0', END)) == 1 or len(self.desired_item.get('1.0', END)) == 1 or self.desired_item_size.get() == "":
+            mb.showwarning('Error', "Please enter values for item, size and colour.")
         else:
             self.desired_item_colour = self.desired_item_colour.get('1.0', END) .strip()
+            self.desired_item = self.desired_item.get('1.0', END) .strip()
             self.desired_item_size = self.desired_item_size.get().strip()
             self.execute_bot()
         
@@ -101,29 +104,32 @@ class supreme_bot:
         window = Tk()
         window.configure(background='#FFEFDB')
         window.title("BogoCop 1.0")
-        window.geometry("300x150")
+        window.geometry("300x175")
         text = Label(window, bg='#FFEFDB', font=('courier', 12, 'bold'), text="BogoCop 1.0")
         text.pack()
-        
-        size_list = ['Small', 'Medium', 'Large', 'XLarge']
-        
+                
+        #Item Selection
+        item_selection = Label(window, bg='#FFEFDB', text='Select an ITEM:')
+        item_selection.place(x=0, y=42)
+        self.desired_item = Text(window, height=1, width=10)
+        self.desired_item.place(x=100, y=42)
+
         #Size Selection
         size_selection = Label(window, bg='#FFEFDB', text='Select a SIZE:')
-        size_selection.place(x=0, y=42)
-        self.desired_item_size = ttk.Combobox(window, values=size_list, width = 15)
-        self.desired_item_size.place(x=100, y=42)
+        size_selection.place(x=0, y=72)
+        self.desired_item_size = ttk.Combobox(window, values=self.size_list, width = 15)
+        self.desired_item_size.place(x=100, y=72)
         
         #Colour Selection
         colour_prompt = Label(window, bg='#FFEFDB', text='Enter a Colour:')
-        colour_prompt.place(x=0, y=72)
+        colour_prompt.place(x=0, y=102)
         self.desired_item_colour=Text(window, height=1, width=10)
-        self.desired_item_colour.place(x=100, y=72)
+        self.desired_item_colour.place(x=100, y=102)
         
         #Submit
         cop_button = Button(window, text="COP", command=self.execute_bot_buffer)
         cop_button.config(height=2, width=40)
-        cop_button.place(x=5, y=100)
-        
+        cop_button.place(x=5, y=130)
         window.mainloop()
 
 if __name__ == "__main__":
